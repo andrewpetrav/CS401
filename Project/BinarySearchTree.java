@@ -1,111 +1,63 @@
-import java.util.ArrayDeque;
-import java.util.Queue;
 
-public class BinarySearchTree {
+public class BinarySearchTree<T extends Comparable<T>> implements CollectionInterface<T> {
 	
-	Node root;
-
-	public BinarySearchTree() { //default constructor
+	Node<T> root;
+	
+	private class Node<T>{
+		T data;
+		Node<T> left;
+		Node<T> right;
 		
-	}
-	
-	public BinarySearchTree(Node r) { //non default constructor
-		root=r;
-	}
-	
-	public void insert(Node n) {
-		Node c=root;
-		while(true) {
-			if(n.key<c.key) { //if node's key less than
-				if(c.left==null) { //if left node null
-					//set n as c's left child
-					c.left=n;
-					n.parent=c;
-					break;
-				}
-				c=c.left; //else if not null, go left
-			}
-			else { //node's key greater than
-				if(c.right==null) {
-					//set n as c's right child
-					c.right=n;
-					n.parent=c;
-					break;
-				}
-				c=c.right; //else if not null, go right
-			}
+		private Node(T d, Node<T> l, Node<T> r) { //non default constructor
+			data=d;
+			left=l;
+			right=r;
 		}
 	}
 	
-	public int findMaxDepth(Node root) { //finds the max depth of the tree
-		if(root==null) {
-			return 0;
-		}
-		int left=findMaxDepth(root.left); //max depth of left subtree
-		int right=findMaxDepth(root.right); //max depth of right subtree
-		if(left>right) {
-			return left+1;
-		}
-		return right+1;
-	}
-	
-	public int iterSize() { //find size iteratively
-		Node n=root;
-		Node temp; //temp holder
-		int size=0;
-		if(root==null) {
-			return size;
-		}
-		Queue<Node>queue=new ArrayDeque<>();
-		queue.add(root);
-		while(!queue.isEmpty()) { //while the queue is not empty
-			temp=queue.remove(); //remove node 
-			size++; //increment size
-			Node left=temp.left;
-			Node right=temp.right;
-			if(left!=null) { //if left child not null
-				queue.add(left); //add it to the queue
-			}
-			if(right!=null) { //if right child not null
-				queue.add(right); //add it to the queue
-			}
-		}
-		return size;
-	}
-	
-	public int recurSize(Node node) { //find size recursively
-		if(node==null) {
-			return 0;
-		}
-		return(recurSize(node.left)+recurSize(node.right)+1);
-	}
-	
-	public void inorder(Node node) {
-		if(node==null) {
-			return;
-		}
-		inorder(node.left);
-		System.out.print(node.key+", ");
-		inorder(node.right);
+	public BinarySearchTree() { //default constructor
+		root=null;
 	}
 
-	public void preorder(Node node) {
-		if(node==null) {
-			return;
-		}
-		System.out.print(node.key+", ");
-		preorder(node.left);
-		preorder(node.right);
-	}
-
-	public void postorder(Node node) {
-		if(node==null) {
-			return;
-		}
-		postorder(node.left);
-		postorder(node.right);
-		System.out.print(node.key+", ");
+	public void add(T element) {
+		root=addRec(root, element);
 	}
 	
+	public Node<T> addRec(Node<T> root, T element) {
+		if (root == null){ //if tree empty
+            root = new Node<T>(element, null, null);
+            return root;
+        }
+		if(element.compareTo(root.data)<0) { //if smaller
+			root.left=addRec(root.left, element);
+		}
+		else if(element.compareTo(root.data)>0) { //if larger
+			root.right=addRec(root.right, element);
+		}
+        return root; //return node pointer
+	}
+ 
 
+	public void print() {
+		inOrder(root); //call helper method
+	}
+	
+	private void inOrder(Node node) {
+	    if (node == null) { //if reach end
+	      return;
+	    }
+	    inOrder(node.left);
+	    System.out.println(node.data);
+	    inOrder(node.right);
+	}
+	
+	public Node<T> binSearch(Node<T> root, T x) {
+		if(root==null || root.data.equals(x)) { //base case: if root null or element at root
+			return root;
+		}
+		else if(root.data.compareTo(x)<0) { //if target greater than node.data
+			return binSearch(root.right, x);
+		}
+		return binSearch(root.left, x); //target smaller than node.data
+	}
 }
